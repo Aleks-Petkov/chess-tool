@@ -1,20 +1,22 @@
-import { Request, Response } from 'express'
+import { Request, Response  } from 'express'
 import 'express-async-errors' // Throws exception on async errors instead of try/catch
+import User from '../models/userModel'
 
 const getUsers = async (req: Request, res: Response) => {
-    const users = [
-        { id: 1, firstName: 'John', lastName: 'Doe' },
-        { id: 2, firstName: 'Mary', lastName: 'Smith' }
-    ]
+    const users = await User.find()
+  
     return res.status(200).json(users)
 }
 
 const createUser = async (req: Request, res: Response) => {
-    if (!req.body.id) { // TODO: fix conditional
+    if (!req.body.username || !req.body.password) { // TODO: fix conditional
         res.status(400)
-        throw new Error('Please specify a user')
+        throw new Error('Please specify a username and password')
     }
-    const user = { id: req.body.id, firstName: req.body.firstName, lastName: req.body.lastName }
+    const user = await User.create({
+        username: req.body.username,
+        password: req.body.password
+    })
     return res.status(200).json(user)
 }
 
