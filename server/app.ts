@@ -1,23 +1,42 @@
-import * as dotenv from 'dotenv' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-dotenv.config()
 import express from 'express'
+import session from 'express-session'
+import MongoStore from 'connect-mongo'
+import logger, { Theme } from 'better-logging'
+import morgan from 'morgan'
+logger(console, {color: Theme.dark})
+import * as dotenv from 'dotenv'
+dotenv.config()
 import 'colors'
-import userRoutes from './routes/userRoutes'
-import errorHandler from './middleware/errorMiddleware'
-import { connectDB } from './config/db'
+import userRouter from './routes/user.routes'
+import openingRouter from './routes/opening.routes'
+import errorHandler from './middleware/error.middleware'
+import passport from './middleware/passport.middleware'
+import connectDB from './config/db'
 
-connectDB()
 const app = express()
 const port = process.env.PORT || 5000
-
+connectDB()
+app.use(morgan('dev'))
+app.use(session({
+    secret: process.env.SESSION_SECRET as string,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    resave: false,
+    saveUninitialized: false,
+    // cookie: { secure: true } // works only with HTTPS
+  }))
+app.use(passport.initialize())
+app.use(passport.session())
+// app.use(flash())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.get('/', async (req, res) => {
-    res.send("Home page")
+    res.json({sessionId: req.sessionID })
+    console.log("Is authenticated: ", req.isAuthenticated(), req.user)
 })
 
-app.use('/users', userRoutes)
+app.use('/users', userRouter)
+app.use('/openings', openingRouter)
 
 app.use(errorHandler)
 app.listen(port, () => {
