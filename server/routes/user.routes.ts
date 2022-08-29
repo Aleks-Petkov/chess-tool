@@ -15,7 +15,7 @@ router.route('/')
     .get(getUsers) // Temporary route
     .post(verifyNotAuth, registerUser)
 
-router.get('/home', verifyAuth, getHome)
+router.get('/dashboard', verifyAuth, getHome)
 router.post('/login', verifyNotAuth, loginUser)
 router.post('/logout', verifyAuth, logoutUser)
 

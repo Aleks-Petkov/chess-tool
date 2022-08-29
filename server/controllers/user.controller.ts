@@ -16,7 +16,7 @@ export const getHome = async (req: Request, res: Response): Promise<void> => {
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     passport.authenticate('local', {
-        successRedirect: '/home',
+        successRedirect: '/dashboard',
         failureRedirect: '/'
     })(req, res, next)
 }

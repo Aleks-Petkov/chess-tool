@@ -6,7 +6,7 @@ import {
     useAppSelector as useSelector,
     useAppDispatch as useDispatch
 } from '../app/hooks'
-import { register, reset  } from '../features/auth/authSlice'
+import { register, reset } from '../features/auth/authSlice'
 import { UserFormInfo } from '../types/User.types'
 import Spinner from '../components/Spinner'
 
@@ -26,7 +26,7 @@ const Register = () => {
             toast.error(message)
         }
         if (isSuccess || user) {
-            navigate('/home')
+            navigate('/dashboard')
         }
         dispatch(reset())
     }, [user, isError, isSuccess, message, navigate, dispatch])

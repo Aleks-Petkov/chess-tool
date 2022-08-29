@@ -12,6 +12,6 @@ export const verifyNotAuth = (req: Request, res: Response, next: NextFunction): 
     if (req.isUnauthenticated()) {
         return next()
     }
-    res.redirect('/home')
+    res.redirect('/dashboard')
 }
 
