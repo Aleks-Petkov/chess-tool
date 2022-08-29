@@ -10,37 +10,45 @@ export const getUsers = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const getHome = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).json({message: "Welcome", user: req.user})
+    res.status(200).json({ user: req.user })
 }
 
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     passport.authenticate('local', {
-        successRedirect: '/users/home',
-        failureRedirect: '/users/'
+        successRedirect: '/home',
+        failureRedirect: '/'
     })(req, res, next)
 }
 
 export const logoutUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    req.logout((err: Error) => {
-        if (err) { return next(err); }
-        res.redirect('/');
+    req.logout((error: Error) => {
+        if (error) { return next(error); }
+        req.session.destroy((err: Error) => {
+            if (err)
+                console.error("Logout unsuccesful")
+            else {
+                res.clearCookie('connect.sid');
+                res.redirect('/');
+            }
+        });
     });
+
 }
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
-    const {username, password} = req.body
+    const { username, password } = req.body
     if (!username || !password) {
         res.status(400)
         throw new Error('Please specify a username and password')
     }
-    const userExists = await User.findOne({username})
+    const userExists = await User.findOne({ username })
     if (userExists) {
         res.status(400)
         throw new Error(`User '${username}' already exists`)
     }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const user = await User.create({username, password: hashedPassword})
+    const user = await User.create({ username, password: hashedPassword })
     if (user) {
         res.status(201).json({
             id: user._id,
@@ -49,7 +57,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     } else {
         res.status(400)
         throw new Error("User could not be created")
-    }        
+    }
 }
 
 export const deleteUser = async (req: Request, res: Response): Promise<void> => {

@@ -2,8 +2,8 @@ import express from 'express'
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
 import logger, { Theme } from 'better-logging'
+logger(console, { color: Theme.dark })
 import morgan from 'morgan'
-logger(console, {color: Theme.dark})
 import * as dotenv from 'dotenv'
 dotenv.config()
 import 'colors'
@@ -23,19 +23,18 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     // cookie: { secure: true } // works only with HTTPS
-  }))
+}))
 app.use(passport.initialize())
 app.use(passport.session())
-// app.use(flash())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-app.get('/', async (req, res) => {
-    res.json({sessionId: req.sessionID })
-    console.log("Is authenticated: ", req.isAuthenticated(), req.user)
-})
+// app.get('/', async (req, res) => {
+//     res.json({ sessionId: req.sessionID })
+//     console.log("Is authenticated: ", req.isAuthenticated(), req.user)
+// })
 
-app.use('/users', userRouter)
+app.use('/', userRouter)
 app.use('/openings', openingRouter)
 
 app.use(errorHandler)

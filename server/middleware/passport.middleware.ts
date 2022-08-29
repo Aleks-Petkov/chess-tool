@@ -6,14 +6,14 @@ import User from '../models/user.model'
 
 passport.use(new LocalStrategy(
     async function verify(username: string, password: string, done): Promise<void> {
-        const user = await User.findOne({username: username}) // TODO: error handling
-        if (!user) 
-            return done(null, false, {message: `No user with username ${username}`})
-        if (await bcrypt.compare(password, user.password)) 
+        const user = await User.findOne({ username: username }) // TODO: error handling
+        if (!user)
+            return done(null, false, { message: `No user with username ${username}` })
+        if (await bcrypt.compare(password, user.password))
             return done(null, user)
-        else 
-            return done(null, false, {message: 'Incorrect password'})
-}))
+        else
+            return done(null, false, { message: 'Incorrect password' })
+    }))
 
 passport.serializeUser((user: any, done): void => {
     done(null, user.id)
