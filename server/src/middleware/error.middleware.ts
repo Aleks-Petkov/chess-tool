@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { BackendError } from '../app.types'
-const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction) => {
+const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
     const statusCode = res.statusCode ?? 500
     console.error(err.message)
     const error: BackendError = {
