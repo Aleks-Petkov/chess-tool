@@ -23,7 +23,7 @@ const Login = () => {
 
     useEffect(() => {
         if (isError) {
-            toast.error(message)
+            toast.error(message, { position: 'bottom-right' })
         }
         if (isSuccess || user) {
             navigate('/dashboard')

@@ -23,7 +23,7 @@ const Register = () => {
 
     useEffect(() => {
         if (isError) {
-            toast.error(message)
+            toast.error(message, { position: 'bottom-right' })
         }
         if (isSuccess || user) {
             navigate('/dashboard')
@@ -45,10 +45,10 @@ const Register = () => {
     const onRegister = (e: React.FormEvent): void => {
         e.preventDefault()
         if (password !== confirmPassword) {
-            toast.error('Passwords do not match!')
+            toast.error('Passwords do not match', { position: 'bottom-right' })
         } else {
             const userData = { username, password }
-            dispatch(register(userData))
+            dispatch(register(userData)) 
         }
     }
 

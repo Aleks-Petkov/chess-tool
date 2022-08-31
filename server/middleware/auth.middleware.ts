@@ -10,8 +10,10 @@ export const verifyAuth = (req: Request, res: Response, next: NextFunction): voi
 
 export const verifyNotAuth = (req: Request, res: Response, next: NextFunction): void => {
     if (req.isUnauthenticated()) {
+        console.log("LOGGING IN NORMALLY")
         return next()
     }
+    console.log("ALREADY LOGGED IN - PASSING THROUGH")
     res.redirect('/dashboard')
 }
 

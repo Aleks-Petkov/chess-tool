@@ -1,21 +1,23 @@
 import { Router } from 'express'
 import { verifyAuth, verifyNotAuth } from '../middleware/auth.middleware'
 import {
-    getUsers,
+    checkAuth,
     getHome,
+    getDashboard,
     loginUser,
     logoutUser,
     registerUser,
-    deleteUser
+    deleteUser,
 } from '../controllers/user.controller'
 
 const router: Router = Router()
 
 router.route('/')
-    .get(getUsers) // Temporary route
+    .get(verifyNotAuth, getHome)
     .post(verifyNotAuth, registerUser)
 
-router.get('/dashboard', verifyAuth, getHome)
+router.get('/auth', checkAuth) // TODO: endpoint might not be needed
+router.get('/dashboard', verifyAuth, getDashboard)
 router.post('/login', verifyNotAuth, loginUser)
 router.post('/logout', verifyAuth, logoutUser)
 

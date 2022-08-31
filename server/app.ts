@@ -29,11 +29,6 @@ app.use(passport.session())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
-// app.get('/', async (req, res) => {
-//     res.json({ sessionId: req.sessionID })
-//     console.log("Is authenticated: ", req.isAuthenticated(), req.user)
-// })
-
 app.use('/', userRouter)
 app.use('/openings', openingRouter)
 

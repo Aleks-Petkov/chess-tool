@@ -3,20 +3,17 @@ import { UserCredentials } from '../../types/User.types'
 
 const API_URL = '/'
 const authService = {
-    register: async (userData: UserCredentials): Promise<UserCredentials> => {
-        const res = await axios.post(API_URL, userData)
-        if (res.data) {
-            localStorage.setItem('user', JSON.stringify(res.data))
-        }
-        return res.data
+    register: async (userData: UserCredentials): Promise<string> => {
+        return (await axios.post(API_URL, userData)).data
     },
 
-    login: async (userData: UserCredentials): Promise<UserCredentials> => {
+    login: async (userData: UserCredentials): Promise<any> => {
         const res = await axios.post(API_URL + 'login', userData)
-        if (res.data) {
-            localStorage.setItem('user', JSON.stringify(res.data))
+        const errorMsg: string = res.data.message ?? ''
+        if (res.data && !errorMsg) {
+            localStorage.setItem('user', res.data)
         }
-        return res.data
+        return { username: res.data, error: errorMsg }
     },
 
     logout: async () => {

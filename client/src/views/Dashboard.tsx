@@ -1,22 +1,26 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector as useSelector } from '../app/hooks'
+import Spinner from '../components/Spinner'
+
 
 function Dashboard() {
     const navigate = useNavigate()
-    const { user } = useSelector((state) => state.auth)
-    console.log("hey", user?.user.username)
+    const { user, isLoading } = useSelector((state) => state.auth)
 
-    
 
     useEffect(() => {
-        if (!user) { // TODO: This condition succeeds on unsuccesful login as user = HTMLerror
+        if (!user) {
             navigate('/')
         }
     }, [user, navigate])
+    if (isLoading) {
+        return <Spinner />
+    }
+
     return (
         <section className="heading">
-            <h1> Welcome {user?.user.username} </h1>
+            <h1> Welcome {user} </h1>
         </section>
     )
 }

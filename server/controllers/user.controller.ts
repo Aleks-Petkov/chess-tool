@@ -1,23 +1,27 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import 'express-async-errors' // Throws exception on async errors instead of try/catch
+import 'express-async-errors' // Catches exceptions on async errors instead of try/catch
 import User from '../models/user.model'
 import bcrypt from 'bcrypt'
 
-export const getUsers = async (req: Request, res: Response): Promise<void> => {
-    const users = await User.find()
-    res.status(200).json(users)
+export const checkAuth = async (req: Request, res: Response): Promise<void> => {
+    res.status(200).send({
+        username: req.user?.username,
+        isAuthenticated: req.isAuthenticated()
+    })
 }
 
 export const getHome = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).json({ user: req.user })
+    res.status(200).send("Home screen for chess tool!")
 }
 
+export const getDashboard = async (req: Request, res: Response): Promise<void> => {
+    res.status(200).send(req.user?.username)
+}
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     passport.authenticate('local', {
         successRedirect: '/dashboard',
-        failureRedirect: '/'
     })(req, res, next)
 }
 
@@ -26,7 +30,7 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
         if (error) { return next(error); }
         req.session.destroy((err: Error) => {
             if (err)
-                console.error("Logout unsuccesful")
+                console.error("Session was not ended successfully")
             else {
                 res.clearCookie('connect.sid');
                 res.redirect('/');
@@ -50,10 +54,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await User.create({ username, password: hashedPassword })
     if (user) {
-        res.status(201).json({
-            id: user._id,
-            username: user.username
-        })
+        res.status(201).send(`User ${username} successfully created.`)
     } else {
         res.status(400)
         throw new Error("User could not be created")

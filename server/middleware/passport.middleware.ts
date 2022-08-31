@@ -1,6 +1,7 @@
 import { Strategy as LocalStrategy } from 'passport-local'
 import passport from 'passport'
 import bcrypt from 'bcrypt'
+import 'express-async-errors'
 import User from '../models/user.model'
 
 
@@ -8,11 +9,11 @@ passport.use(new LocalStrategy(
     async function verify(username: string, password: string, done): Promise<void> {
         const user = await User.findOne({ username: username }) // TODO: error handling
         if (!user)
-            return done(null, false, { message: `No user with username ${username}` })
+            return done(new Error(`No user with username '${username}'`), false)
         if (await bcrypt.compare(password, user.password))
             return done(null, user)
         else
-            return done(null, false, { message: 'Incorrect password' })
+            return done(new Error('Incorrect password'), false)
     }))
 
 passport.serializeUser((user: any, done): void => {

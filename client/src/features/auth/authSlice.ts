@@ -3,11 +3,10 @@ import authService from './authService'
 import { UserCredentials, UserState } from '../../types/User.types'
 import { AxiosError } from 'axios';
 
-const user = JSON.parse(localStorage.getItem('user') as string)
-console.log("User is ", user)
+const user = (localStorage.getItem('user') as string)
 
-const initialState = {
-    user: user ?? null,
+const initialState: UserState = {
+    user: user ?? "",
     isError: false,
     isSuccess: false,
     isLoading: false,
@@ -23,8 +22,7 @@ export const authSlice = createSlice({
             state.isError = false
             state.isSuccess = false
             state.message = ''
-        }
-
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -34,32 +32,34 @@ export const authSlice = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.isSuccess = true
-                state.user = action.payload
+                state.message = action.payload as string
             })
             .addCase(register.rejected, (state, action) => {
                 state.isLoading = false
                 state.isError = true
                 state.message = action.payload as string
-                state.user = null
+                state.user = ""
 
             })
             .addCase(logout.fulfilled, (state) => {
-                state.user = null
+                state.user = ""
             })
             .addCase(login.pending, (state) => {
                 state.isLoading = true
             })
             .addCase(login.fulfilled, (state, action) => {
+                console.log("Fulfilled", action.payload)
+                state.user = action.payload
                 state.isLoading = false
                 state.isSuccess = true
-                state.user = action.payload
+                // if (typeof action.payload !== string)
+                //  state.user = action.payload.user.username
             })
             .addCase(login.rejected, (state, action) => {
                 state.isLoading = false
                 state.isError = true
                 state.message = action.payload as string
-                state.user = null
-
+                state.user = ""
             })
     }
 })
@@ -79,7 +79,11 @@ export const register = createAsyncThunk('auth/register',
 export const login = createAsyncThunk('auth/login',
     async (user: UserCredentials, thunkAPI) => {
         try {
-            return await authService.login(user)
+            const { username, error } = await authService.login(user)
+            if (error)
+                return thunkAPI.rejectWithValue(error)
+            else
+                return username
         } catch (error: any) {
             if (error instanceof AxiosError) {
                 const message: string = error.response?.data?.message || error.message || error.toString()
@@ -89,7 +93,7 @@ export const login = createAsyncThunk('auth/login',
     })
 
 export const logout = createAsyncThunk('auth/logout', async () => {
-    await authService.logout() // TODO: compare w/ passport logout
+    await authService.logout()
 })
 
 
