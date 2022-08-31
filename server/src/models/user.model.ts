@@ -1,13 +1,5 @@
 import mongoose from 'mongoose'
-
-export interface UserDocument extends mongoose.Document {
-    username: string,
-    password: string,
-    opening: string // TODO: Make opening list
-    // TODO: Perhaps move verify function here
-    // comparePassword(candidatePassword: string): Promise<boolean>
-}
-
+import { UserDocument } from '../app.types'
 //interface UserModel extends mongoose.Model<UserDocument> {};
 
 const userSchema = new mongoose.Schema<UserDocument/*, UserModel*/>({

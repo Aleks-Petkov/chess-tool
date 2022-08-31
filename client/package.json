@@ -1,5 +1,5 @@
 {
-  "name": "new_client",
+  "name": "chess_tool",
   "version": "0.1.0",
   "proxy": "http://localhost:8989",
   "private": true,

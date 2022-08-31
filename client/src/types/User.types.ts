@@ -7,11 +7,8 @@ export type UserFormInfo = UserCredentials & {
     confirmPassword: string,
 }
 
-
 export type UserState = {
-    user: string,
-    isError: boolean,
-    isSuccess: boolean,
-    isLoading: boolean,
-    message: string
+    user: string | null,
+    status: 'idle' | 'success' | 'pending' | 'fail'
+    error: string | null
 }

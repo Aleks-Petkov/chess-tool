@@ -7,7 +7,7 @@ import User from '../models/user.model'
 
 passport.use(new LocalStrategy(
     async function verify(username: string, password: string, done): Promise<void> {
-        const user = await User.findOne({ username: username }) // TODO: error handling
+        const user = await User.findOne({ username: username })
         if (!user)
             return done(new Error(`No user with username '${username}'`), false)
         if (await bcrypt.compare(password, user.password))

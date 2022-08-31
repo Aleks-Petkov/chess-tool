@@ -2,15 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authService from './authService'
 import { UserCredentials, UserState } from '../../types/User.types'
 import { AxiosError } from 'axios';
+import { BackendError } from '@backend/app.types'
 
-const user = (localStorage.getItem('user') as string)
 
 const initialState: UserState = {
-    user: user ?? "",
-    isError: false,
-    isSuccess: false,
-    isLoading: false,
-    message: ''
+    user: localStorage.getItem('user'),
+    status: 'idle',
+    error: null
 }
 
 export const authSlice = createSlice({
@@ -18,48 +16,37 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         reset: (state) => {
-            state.isLoading = false
-            state.isError = false
-            state.isSuccess = false
-            state.message = ''
+            state.status = 'idle'
+            state.error = null
         },
     },
     extraReducers: (builder) => {
         builder
             .addCase(register.pending, (state) => {
-                state.isLoading = true
+                state.status = 'pending'
             })
             .addCase(register.fulfilled, (state, action) => {
-                state.isLoading = false
-                state.isSuccess = true
-                state.message = action.payload as string
+                state.status = 'success'
+                state.error = action.payload as string // TODO: check if line is needed
             })
             .addCase(register.rejected, (state, action) => {
-                state.isLoading = false
-                state.isError = true
-                state.message = action.payload as string
-                state.user = ""
-
+                state.status = 'fail'
+                state.error = action.payload as string
             })
             .addCase(logout.fulfilled, (state) => {
-                state.user = ""
+                state.user = null
             })
             .addCase(login.pending, (state) => {
-                state.isLoading = true
+                state.status = 'pending'
             })
             .addCase(login.fulfilled, (state, action) => {
-                console.log("Fulfilled", action.payload)
-                state.user = action.payload
-                state.isLoading = false
-                state.isSuccess = true
-                // if (typeof action.payload !== string)
-                //  state.user = action.payload.user.username
+                state.user = action.payload as string
+                state.status = 'success'
             })
             .addCase(login.rejected, (state, action) => {
-                state.isLoading = false
-                state.isError = true
-                state.message = action.payload as string
-                state.user = ""
+                state.status = 'fail'
+                state.error = action.payload as string
+                //state.user = null
             })
     }
 })
@@ -79,21 +66,28 @@ export const register = createAsyncThunk('auth/register',
 export const login = createAsyncThunk('auth/login',
     async (user: UserCredentials, thunkAPI) => {
         try {
-            const { username, error } = await authService.login(user)
-            if (error)
-                return thunkAPI.rejectWithValue(error)
-            else
-                return username
+            const res: string | BackendError = await authService.login(user)
+            if (typeof res === "string") {
+                localStorage.setItem('user', res)
+                return res
+            }
+            return thunkAPI.rejectWithValue(res.error as string)
+            // const { username, error } = await authService.login(user)
+            // if (error)
+            //     return thunkAPI.rejectWithValue(error)
+            // else
+            //     return username
         } catch (error: any) {
             if (error instanceof AxiosError) {
                 const message: string = error.response?.data?.message || error.message || error.toString()
-                return thunkAPI.rejectWithValue(message)
+                return thunkAPI.rejectWithValue(message as string)
             }
         }
     })
 
 export const logout = createAsyncThunk('auth/logout', async () => {
     await authService.logout()
+    localStorage.removeItem('user')
 })
 
 

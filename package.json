@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node dist/server/app",
-    "server": "nodemon server/app.ts",
+    "server": "nodemon server/src/app.ts",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "tsc -p . && cd client && npm run build",

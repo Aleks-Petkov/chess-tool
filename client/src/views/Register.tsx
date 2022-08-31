@@ -19,17 +19,17 @@ const Register = () => {
     const { username, password, confirmPassword } = formData
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const { user, isLoading, isError, isSuccess, message } = useSelector((state) => state.auth)
+    const { user, status, error } = useSelector((state) => state.auth)
 
     useEffect(() => {
-        if (isError) {
-            toast.error(message, { position: 'bottom-right' })
+        if (status === 'fail') { // TODO: Perhaps fail is unnecessary state, use if(error)
+            toast.error(error, { position: 'bottom-right' })
         }
-        if (isSuccess || user) {
+        if (status === 'success' || user) {
             navigate('/dashboard')
         }
         dispatch(reset())
-    }, [user, isError, isSuccess, message, navigate, dispatch])
+    }, [user, status, error, navigate, dispatch])
 
     const onChange = (e: React.FormEvent) => {
         setFormData((prevState: UserFormInfo): UserFormInfo => {
@@ -48,11 +48,11 @@ const Register = () => {
             toast.error('Passwords do not match', { position: 'bottom-right' })
         } else {
             const userData = { username, password }
-            dispatch(register(userData)) 
+            dispatch(register(userData))
         }
     }
 
-    if (isLoading) {
+    if (status === 'pending') {
         return <Spinner />
     }
 

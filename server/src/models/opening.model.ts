@@ -1,13 +1,7 @@
 import mongoose from 'mongoose'
+import { OpeningDocument } from '../app.types'
 
-export interface IOpening extends mongoose.Document {
-    name: string,
-    fenPosition: string
-}
-
-export interface OpeningDocument extends IOpening, mongoose.Document {}
-
-const openingSchema = new mongoose.Schema({
+const openingSchema = new mongoose.Schema<OpeningDocument>({
     name: {
         type: String,
         required: true,

@@ -6,7 +6,7 @@ import Spinner from '../components/Spinner'
 
 function Dashboard() {
     const navigate = useNavigate()
-    const { user, isLoading } = useSelector((state) => state.auth)
+    const { user, status } = useSelector((state) => state.auth)
 
 
     useEffect(() => {
@@ -14,7 +14,8 @@ function Dashboard() {
             navigate('/')
         }
     }, [user, navigate])
-    if (isLoading) {
+
+    if (status === 'pending') {
         return <Spinner />
     }
 

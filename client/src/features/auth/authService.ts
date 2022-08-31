@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { UserCredentials } from '../../types/User.types'
+import { BackendError } from '@backend/app.types'
 
 const API_URL = '/'
 const authService = {
@@ -7,18 +8,17 @@ const authService = {
         return (await axios.post(API_URL, userData)).data
     },
 
-    login: async (userData: UserCredentials): Promise<any> => {
-        const res = await axios.post(API_URL + 'login', userData)
-        const errorMsg: string = res.data.message ?? ''
-        if (res.data && !errorMsg) {
-            localStorage.setItem('user', res.data)
-        }
-        return { username: res.data, error: errorMsg }
+    login: async (userData: UserCredentials): Promise<string | BackendError> => {
+        return (await axios.post(API_URL + 'login', userData)).data
+        // const errorMsg: string = res.data.message ?? ''
+        // if (res.data && !errorMsg) {
+        //     localStorage.setItem('user', res.data)
+        // }
+        // return { username: res.data, error: errorMsg }
     },
 
-    logout: async () => {
+    logout: async (): Promise<void> => {
         await axios.post(API_URL + 'logout')
-        localStorage.removeItem('user')
     }
 }
 
