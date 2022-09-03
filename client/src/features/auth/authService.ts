@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { UserCredentials } from '../../types/User.types'
+import { UserCredentials, Username } from '../../types/User.types'
 import { BackendError } from '@backend/app.types'
 
 const API_URL = '/'
@@ -8,7 +8,7 @@ const authService = {
         return (await axios.post(API_URL, userData)).data
     },
 
-    login: async (userData: UserCredentials): Promise<string | BackendError> => {
+    login: async (userData: UserCredentials): Promise<Username | BackendError> => {
         return (await axios.post(API_URL + 'login', userData)).data
     },
 
@@ -16,8 +16,7 @@ const authService = {
         await axios.post(API_URL + 'logout')
     },
 
-    checkAuthenticated: async (): Promise<{ user: string }> => {
-        console.log("AUTH REQUEST!!!!!!!!")
+    checkAuthenticated: async (): Promise<Username> => {
         return (await axios.get('/auth')).data
     }
 }

@@ -4,7 +4,7 @@ export const verifyAuth = (req: Request, res: Response, next: NextFunction): voi
     if (req.isAuthenticated()) {
         return next()
     }
-    res.redirect('/')
+    res.redirect('/auth')
 }
 
 export const verifyNotAuth = (req: Request, res: Response, next: NextFunction): void => {

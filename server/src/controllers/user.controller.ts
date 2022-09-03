@@ -1,26 +1,24 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import 'express-async-errors' // Catches exceptions on async errors instead of try/catch
-import User from '../models/user.model'
 import bcrypt from 'bcrypt'
+import 'express-async-errors' // Catches exceptions on async errors instead of try/catch
+
+import User from '../models/user.model'
+import { Username } from '@frontend/types/User.types'
 
 export const checkAuth = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).send({
-        user: req.user?.username ?? null,
-    })
+    const username: Username = { username: req.user?.username ?? null }
+    res.status(200).json(username)
 }
 
-export const getHome = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).send("Home screen for chess tool!")
-}
-
+// Placeholder route until get-request for dashboard is needed
 export const getDashboard = async (req: Request, res: Response): Promise<void> => {
-    res.status(200).send(req.user?.username)
+    res.redirect('/auth')
 }
 
 export const loginUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     passport.authenticate('local', {
-        successRedirect: '/dashboard',
+        successRedirect: '/auth',
     })(req, res, next)
 }
 
@@ -59,14 +57,4 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         res.status(400)
         throw new Error("User could not be created")
     }
-}
-
-export const deleteUser = async (req: Request, res: Response): Promise<void> => {
-    const user = await User.findById(req.params.id)
-    if (!user) {
-        res.status(400)
-        throw new Error(`User with ID ${req.params.id} not found`)
-    }
-    await user.remove()
-    res.status(200).json({ id: req.params.id })
 }

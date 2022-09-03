@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { FaSignInAlt, FaSignOutAlt, FaUser, FaChessPawn } from 'react-icons/fa'
 import {
 	useAppSelector as useSelector,
@@ -7,14 +7,12 @@ import {
 import { logout } from '../features/auth/authSlice'
 
 const Header = () => {
-	const navigate = useNavigate()
 	const dispatch = useDispatch()
 
 	const { user } = useSelector((state) => state.auth)
 
 	const onLogout = () => {
 		dispatch(logout())
-		//navigate('/')
 	}
 	return (
 		<header className='header'>

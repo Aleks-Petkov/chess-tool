@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authService from './authService'
-import { UserCredentials, UserState } from '../../types/User.types'
+import { UserCredentials, UserState, Username } from '../../types/User.types'
 import { AxiosError } from 'axios';
 import { BackendError } from '@backend/app.types'
 
@@ -51,7 +51,7 @@ export const authSlice = createSlice({
                 //state.status = 'pending'
             })
             .addCase(checkAuthenticated.fulfilled, (state, action) => {
-                state.user = action.payload?.user
+                state.user = action.payload?.username
                 state.status = 'idle'
             })
     }
@@ -76,10 +76,11 @@ export const register = createAsyncThunk('auth/register',
 export const login = createAsyncThunk('auth/login',
     async (user: UserCredentials, thunkAPI) => {
         try {
-            const res: string | BackendError = await authService.login(user)
-            if (typeof res === "string") {
-                localStorage.setItem('user', res)
-                return res
+            const res: Username | BackendError = await authService.login(user)
+            if ('username' in res) {
+                if (res.username !== null)
+                    localStorage.setItem('user', res.username)
+                return res.username
             }
             return thunkAPI.rejectWithValue(res.message)
         } catch (err: any) {
