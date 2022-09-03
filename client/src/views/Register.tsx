@@ -4,13 +4,15 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import {
     useAppSelector as useSelector,
-    useAppDispatch as useDispatch
+    useAppDispatch as useDispatch,
+    useProtectedPage
 } from '../app/hooks'
 import { register, reset } from '../features/auth/authSlice'
 import { UserFormInfo } from '../types/User.types'
 import Spinner from '../components/Spinner'
 
 const Register = () => {
+    useProtectedPage(false)
     const [formData, setFormData] = useState<UserFormInfo>({
         username: '',
         password: '',
@@ -19,17 +21,18 @@ const Register = () => {
     const { username, password, confirmPassword } = formData
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const { user, status, error } = useSelector((state) => state.auth)
+    const {status, error } = useSelector((state) => state.auth)
 
     useEffect(() => {
-        if (status === 'fail') { // TODO: Perhaps fail is unnecessary state, use if(error)
+        if (status === 'failed') { // TODO: Perhaps fail is unnecessary state, use if(error)
             toast.error(error, { position: 'bottom-right' })
         }
-        if (status === 'success' || user) {
-            navigate('/dashboard')
+        if (status === 'success') {
+            toast.success(error, { position: 'bottom-right' })
         }
         dispatch(reset())
-    }, [user, status, error, navigate, dispatch])
+
+    }, [status, error, navigate, dispatch])
 
     const onChange = (e: React.FormEvent) => {
         setFormData((prevState: UserFormInfo): UserFormInfo => {

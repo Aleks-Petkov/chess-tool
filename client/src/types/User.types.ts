@@ -9,6 +9,6 @@ export type UserFormInfo = UserCredentials & {
 
 export type UserState = {
     user: string | null,
-    status: 'idle' | 'success' | 'pending' | 'fail'
+    status: 'idle' | 'success' | 'pending' | 'failed'
     error: string | null
 }

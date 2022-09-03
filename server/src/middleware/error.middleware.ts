@@ -4,7 +4,7 @@ const errorHandler = (err: Error, req: Request, res: Response, next: NextFunctio
     const statusCode = res.statusCode ?? 500
     console.error(err.message)
     const error: BackendError = {
-        error: err.message,
+        message: err.message,
         stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
     }
     res.status(statusCode).json(error)

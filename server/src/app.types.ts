@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export type BackendError = {
-    error: string,
+    message: string,
     stack: string | undefined
 }
 

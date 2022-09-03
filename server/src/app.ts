@@ -22,7 +22,7 @@ app.use(session({
     store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
     resave: false,
     saveUninitialized: false,
-    // cookie: { secure: true } // works only with HTTPS
+    cookie: { sameSite: 'strict' } // 
 }))
 app.use(passport.initialize())
 app.use(passport.session())

@@ -14,6 +14,11 @@ const authService = {
 
     logout: async (): Promise<void> => {
         await axios.post(API_URL + 'logout')
+    },
+
+    checkAuthenticated: async (): Promise<{ user: string }> => {
+        console.log("AUTH REQUEST!!!!!!!!")
+        return (await axios.get('/auth')).data
     }
 }
 

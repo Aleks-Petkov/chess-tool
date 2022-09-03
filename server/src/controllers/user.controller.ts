@@ -6,8 +6,7 @@ import bcrypt from 'bcrypt'
 
 export const checkAuth = async (req: Request, res: Response): Promise<void> => {
     res.status(200).send({
-        username: req.user?.username,
-        isAuthenticated: req.isAuthenticated()
+        user: req.user?.username ?? null,
     })
 }
 
@@ -27,17 +26,18 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
 
 export const logoutUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     req.logout((error: Error) => {
-        if (error) { return next(error); }
+        if (error) { return next(error) }
         req.session.destroy((err: Error) => {
-            if (err)
+            if (err) {
                 console.error("Session was not ended successfully")
-            else {
-                res.clearCookie('connect.sid');
-                res.redirect('/');
+                res.sendStatus(500)
             }
-        });
-    });
-
+            else {
+                res.clearCookie('connect.sid')
+                res.sendStatus(200)
+            }
+        })
+    })
 }
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {

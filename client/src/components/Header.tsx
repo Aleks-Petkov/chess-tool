@@ -4,7 +4,7 @@ import {
 	useAppSelector as useSelector,
 	useAppDispatch as useDispatch
 } from '../app/hooks'
-import { logout, reset } from '../features/auth/authSlice'
+import { logout } from '../features/auth/authSlice'
 
 const Header = () => {
 	const navigate = useNavigate()
@@ -14,8 +14,7 @@ const Header = () => {
 
 	const onLogout = () => {
 		dispatch(logout())
-		dispatch(reset())
-		navigate('/')
+		//navigate('/')
 	}
 	return (
 		<header className='header'>

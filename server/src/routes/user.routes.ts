@@ -16,7 +16,7 @@ router.route('/')
     .get(verifyNotAuth, getHome)
     .post(verifyNotAuth, registerUser)
 
-router.get('/auth', checkAuth) // TODO: endpoint might not be needed
+router.get('/auth', checkAuth)
 router.get('/dashboard', verifyAuth, getDashboard)
 router.post('/login', verifyNotAuth, loginUser)
 router.post('/logout', verifyAuth, logoutUser)
