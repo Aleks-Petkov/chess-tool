@@ -1,5 +1,6 @@
 import { useAppSelector as useSelector, useProtectedPage } from '../app/hooks'
 import Spinner from '../components/Spinner'
+import { Link } from 'react-router-dom'
 
 function Dashboard() {
     useProtectedPage(true)
@@ -12,6 +13,7 @@ function Dashboard() {
     return (
         <section className="heading">
             <h1> Welcome {user} </h1>
+            <Link to="/chessboard">Play!</Link>
         </section>
     )
 }
