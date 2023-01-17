@@ -1,5 +1,6 @@
 import './Square.css'
 import { Piece } from 'chess.ts'
+import { pieceToSymbol } from '../Chessboard/Chessboard';
 
 interface Props {
     piece: Piece | null;
@@ -7,8 +8,7 @@ interface Props {
 }
 
 const Square = ({ piece, squareColor }: Props) => {
-    const p = piece?.color === 'w' ? piece.type.toUpperCase() : piece?.type
-    const image = `assets/images/${p}.png`
+    const image = `assets/images/${pieceToSymbol(piece)}.png`
     return (
         <div className={(squareColor ? 'white' : 'black') + ' square'}>
             {piece !== null && <div style={{ backgroundImage: `url(${image})` }} className='piece' />}
