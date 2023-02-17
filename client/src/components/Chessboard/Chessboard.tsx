@@ -32,8 +32,7 @@ const isPiece = (e: HTMLElement): boolean => {
 const Chessboard = () => {
 
   const [fromSquare, setFromSquare] = useState("")
-  const [file, setFile] = useState(0)
-  const [rank, setRank] = useState(0)
+
 
   const centerOfSquare = (file: string, rank: number): number[] => {
     const chessboard = chessRef.current!
@@ -48,13 +47,15 @@ const Chessboard = () => {
   // to discard e.g. moving e-pawn to f-file
   const makeMove = (fromSquare: string, toSquare: string): void => {
     if (grabbedElement === null) return;
-    console.log(grabbedPiece)
-    console.log("FIle: " + file + "rank: " + rank)
     const move = getSAN(grabbedPiece, toSquare) //grabbedPiece never null
-    console.log("Move: " + move)
-    const b = chess.move(move)
-    console.log(b)
-    const center = centerOfSquare(toSquare[0], parseInt(toSquare[1]))
+    const legalMovesFromSquare = chess.moves({ square: fromSquare })
+    let center = []
+    if (legalMovesFromSquare.includes(move)) {
+      console.log(chess.move(move))
+      center = centerOfSquare(toSquare[0], parseInt(toSquare[1]))
+    } else {
+      center = centerOfSquare(fromSquare[0], parseInt(fromSquare[1]))
+    }
     moveElement(grabbedElement, center[0], center[1])
   }
 
@@ -63,9 +64,7 @@ const Chessboard = () => {
     const chessboard = chessRef.current!
     const file = Math.floor((x - chessboard.offsetLeft) / SQUARE_SIZE) + 1
     const rank = Math.abs(Math.ceil((y - chessboard.offsetTop - GRID_SIZE) / SQUARE_SIZE)) + 1
-    setFromSquare(getFileString(file) + rank.toString())
-    console.log("Fromsquare: " + fromSquare)
-    return fromSquare
+    return getFileString(file) + rank.toString()
   }
 
   const pieceOnCursor = (x: number, y: number): Piece | null => {
@@ -78,13 +77,17 @@ const Chessboard = () => {
     return move;
   }
 
+  // Moving pieces only works by dragging because fromSquare is set on mouse down,
+  // so clicking to drop a piece results in fromSquare being set to toSquare
   const grabPiece = (e: React.MouseEvent): void => {
     const element = e.target as HTMLElement
-    if (isPiece(element)) {
-      moveElement(element, e.clientX, e.clientY)
-      grabbedElement = element
-      grabbedPiece = pieceOnCursor(e.clientX, e.clientY)
-    }
+    if (!isPiece(element)) return;
+
+    moveElement(element, e.clientX, e.clientY)
+    grabbedElement = element
+    grabbedPiece = pieceOnCursor(e.clientX, e.clientY)
+    setFromSquare(squareOnCursor(e.clientX, e.clientY))
+
   }
 
   const movePiece = (e: React.MouseEvent): void => {
@@ -96,11 +99,11 @@ const Chessboard = () => {
 
   const dropPiece = (e: React.MouseEvent): void => {
     const maybePiece: Piece | null = pieceOnCursor(e.clientX, e.clientY)
-    console.log(maybePiece)
+    const toSquare = squareOnCursor(e.clientX, e.clientY)
+    //if (toSquare === fromSquare || maybePiece !== null) return;
     const chessboard = chessRef.current!
     if (maybePiece === null) {
-      const toSquare = squareOnCursor(e.clientX, e.clientY);
-      makeMove("", toSquare)
+      makeMove(fromSquare, toSquare)
       grabbedElement = null
     }
   }
