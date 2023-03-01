@@ -9,7 +9,6 @@ const OFFSET = 50
 const GRID_SIZE = 800;
 const SQUARE_SIZE = 100;
 let grabbedElement: HTMLElement | null = null
-let grabbedPiece: Piece | null = null
 
 const getFileString = (file: number): string => {
   return files[file - 1]
@@ -34,7 +33,9 @@ const Chessboard = () => {
   const [fromSquare, setFromSquare] = useState("")
 
 
-  const centerOfSquare = (file: string, rank: number): number[] => {
+  const centerOfSquare = (square: string): number[] => {
+    const file = square[0]
+    const rank = parseInt(square[1])
     const chessboard = chessRef.current!
     const centerX = getFileNumber(file) * SQUARE_SIZE
     const centerY = rank * SQUARE_SIZE
@@ -43,20 +44,28 @@ const Chessboard = () => {
     return [minX + centerX, maxY - centerY]
   }
 
-  // TODO: confirm grabedPiece starting position == chess.move.from 
-  // to discard e.g. moving e-pawn to f-file
-  const makeMove = (fromSquare: string, toSquare: string): void => {
+  const returnGrabbedElement = (): void => {
     if (grabbedElement === null) return;
-    const move = getSAN(grabbedPiece, toSquare) //grabbedPiece never null
-    const legalMovesFromSquare = chess.moves({ square: fromSquare })
+    let center = centerOfSquare(fromSquare)
+    moveAndResetGrabbedElement(grabbedElement, center[0], center[1])
+  }
+
+  window.addEventListener('contextmenu', (e) => {
+    e.preventDefault()
+    returnGrabbedElement();
+  });
+
+  const makeMove = (toSquare: string): void => {
+    if (grabbedElement === null) return; // TODO: check if check is necessary?
+    const move = getMoveNotation(toSquare)
     let center = []
-    if (legalMovesFromSquare.includes(move)) {
-      console.log(chess.move(move))
-      center = centerOfSquare(toSquare[0], parseInt(toSquare[1]))
+    if (move) {
+      console.log("Made move: " + chess.move(move)?.san)
+      center = centerOfSquare(toSquare)
     } else {
-      center = centerOfSquare(fromSquare[0], parseInt(fromSquare[1]))
+      center = centerOfSquare(fromSquare)
     }
-    moveElement(grabbedElement, center[0], center[1])
+    moveAndResetGrabbedElement(grabbedElement, center[0], center[1])
   }
 
 
@@ -71,23 +80,24 @@ const Chessboard = () => {
     return chess.get(squareOnCursor(x, y))
   }
 
-  const getSAN = (piece: Piece | null, square: string): string => {
-    let move = pieceToSymbol(piece) + square; //grabbedPiece never null
-    move = move[0].toLowerCase() === "p" ? move.substring(1) : move;
-    return move;
+  const getMoveNotation = (square: string): string => {
+    let move = ""
+    const legalMovesFromSquare = chess.moves({ square: fromSquare })
+    legalMovesFromSquare.forEach(m => {
+      if (m.substring(m.length - 2) === square)
+        move = m
+    })
+    return move
   }
 
-  // Moving pieces only works by dragging because fromSquare is set on mouse down,
-  // so clicking to drop a piece results in fromSquare being set to toSquare
-  const grabPiece = (e: React.MouseEvent): void => {
+  const mouseDown = (e: React.MouseEvent): void => {
     const element = e.target as HTMLElement
-    if (!isPiece(element)) return;
-
-    moveElement(element, e.clientX, e.clientY)
-    grabbedElement = element
-    grabbedPiece = pieceOnCursor(e.clientX, e.clientY)
-    setFromSquare(squareOnCursor(e.clientX, e.clientY))
-
+    if (isPiece(element) && !grabbedElement) {
+      grabbedElement = element
+      setFromSquare(squareOnCursor(e.clientX, e.clientY))
+    } else {
+      makeMove(squareOnCursor(e.clientX, e.clientY))
+    }
   }
 
   const movePiece = (e: React.MouseEvent): void => {
@@ -100,12 +110,9 @@ const Chessboard = () => {
   const dropPiece = (e: React.MouseEvent): void => {
     const maybePiece: Piece | null = pieceOnCursor(e.clientX, e.clientY)
     const toSquare = squareOnCursor(e.clientX, e.clientY)
-    //if (toSquare === fromSquare || maybePiece !== null) return;
-    const chessboard = chessRef.current!
-    if (maybePiece === null) {
-      makeMove(fromSquare, toSquare)
-      grabbedElement = null
-    }
+    console.log(maybePiece)
+    if (toSquare === fromSquare) return;
+    makeMove(toSquare)
   }
 
   const moveElement = (e: HTMLElement, cursorX: number, cursorY: number): void => {
@@ -122,9 +129,12 @@ const Chessboard = () => {
     e.style.top = y < minY ? `${minY}px` : y > maxY ? `${maxY}py` : `${y}px`
   }
 
+  const moveAndResetGrabbedElement = (e: HTMLElement, cursorX: number, cursorY: number): void => {
+    moveElement(e, cursorX, cursorY);
+    grabbedElement = null
+  }
 
   const [chess, setChess] = useState(new Chess())
-  //const [pieces, setPieces] = useState<Piece[]>()
   let chessRef = useRef<HTMLDivElement>(null)
   let startingBoard = []
   let isWhite = true
@@ -138,7 +148,7 @@ const Chessboard = () => {
   }
   const [board, setBoard] = useState(startingBoard)
   return (
-    <div onMouseDown={e => grabPiece(e)}
+    <div onMouseDown={e => mouseDown(e)}
       onMouseMove={e => movePiece(e)}
       onMouseUp={e => dropPiece(e)}
       className="chessboard"
